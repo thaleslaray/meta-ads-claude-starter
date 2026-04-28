@@ -146,6 +146,28 @@ This makes a real read call, then queries the quota endpoint, and confirms `ads_
 
 **If the tier still shows `development_access` after a real call**, the upgrade hasn't propagated yet — wait 5-10 minutes and retry. If it persists past 1 hour, contact Meta support via the developer dashboard.
 
+## Phase 6 — Take down the demo URL (security hygiene)
+
+**Critical:** the demo dashboard deployed for App Review (e.g. on Vercel) exposes **read AND write** endpoints with your real Meta credentials. Reviewer needed it to verify the use case — but once approved, leaving it public is a footgun:
+
+- Anyone who guesses the URL can call `/api/campaign/{id}/budget` or `/api/campaign/{id}/status` with no auth on top of the public route.
+- The HITL flow is enforced by Claude Code (the operator), not by the HTTP layer — direct HTTP calls bypass it.
+- Audit log + rate limiter still apply, but the worst case is real money spent / campaigns paused on real ads.
+
+**Operational use of the MCP does NOT need this URL.** The MCP runs locally inside Claude Code with the same credentials — the dashboard was a one-time demo artifact for the reviewer.
+
+After approval (email confirmed + `verify-tier.sh` shows `standard_access`):
+
+```bash
+# 1. Remove the custom domain alias (URL stops resolving)
+vercel alias rm meta.your-domain.com --yes
+
+# 2. Delete the project entirely (also kills the *.vercel.app fallback URL)
+vercel project rm meta-ads-dashboard
+```
+
+If you keep the project for any reason, at minimum: rotate the Vercel env vars (`META_ACCESS_TOKEN`, `META_APP_SECRET`) and put the deployment behind Vercel's password protection / SSO.
+
 ## Common pitfalls (the ones that wasted us hours)
 
 - **Vídeo sem caption explicando System User** → "unable to verify use case experience". This is the #1 rejection mode for S2S apps.

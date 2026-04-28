@@ -390,7 +390,14 @@ Claude vai:
 3. Importar as variáveis do `.env` pra Vercel
 4. Deploy → te dá URL `https://meta-ads-dashboard-xxxx.vercel.app`
 
-✅ Dashboard no ar. **Lembra: ele é só demo pro App Review.** Depois de aprovado, pode até desligar o Vercel.
+✅ Dashboard no ar. **Lembra: ele é só demo pro App Review.**
+
+> ⚠️ **Importante — desligar o Vercel depois da aprovação.** O dashboard expõe endpoints de **leitura E escrita** com seu token Meta real. O reviewer precisa pra validar o use case, mas deixar online depois é furada: qualquer um que descobrir a URL pode chamar `/api/campaign/{id}/budget` ou `/api/campaign/{id}/status` sem auth (o HITL é enforced pelo Claude Code, não pela URL). Operação normal do MCP **não usa** essa URL — o Claude Code roda local com as mesmas credenciais. Depois que o tier subir pra `standard_access`, derruba tudo:
+>
+> ```bash
+> vercel alias rm meta.seu-dominio.com.br --yes
+> vercel project rm meta-ads-dashboard
+> ```
 
 ### Passo 5 — Submeter App Review (15min trabalho + 2h-3 dias espera)
 
