@@ -26,6 +26,54 @@ Meta App Review is the gate to production access for Marketing API and Page-rela
 
 If those 8 are right, approval comes fast. The rest of this skill is the concrete how-to.
 
+## Phase 0 — Build a demo dashboard (the "what to show" blueprint)
+
+The screencast (Phase 3) needs to demonstrate real Marketing API integration. Most apps are rejected because they show only a marketing site or a static UI — Meta needs to see actual writes happening through the API.
+
+**You need a demo dashboard.** It can be:
+- The starter at https://github.com/thaleslaray/meta-ads-claude-starter (clone, configure 5 env vars, deploy in 30min)
+- Something you build yourself (use the blueprint below)
+
+After approval, this dashboard is **disposable** — operation happens via Claude Code + MCP, not the dashboard. Don't over-engineer it.
+
+### Minimum demo requirements (the dashboard MUST have)
+
+For the screencast to satisfy reviewers, the dashboard needs to demonstrate:
+
+1. **Read** — list real campaigns from at least one of your own ad accounts
+2. **Write 1 — pause/activate** — toggle status of a campaign with HITL approval (confirmation panel before the API call)
+3. **Write 2 — update budget** — change daily budget of a campaign with HITL approval
+4. **Audit log visible** — show a log of API calls (operation, resource_id, before/after, timestamp)
+5. **Auth model visible** — either OAuth flow OR a settings/info page showing System User configuration
+
+### Implementation pattern (any stack)
+
+Backend (the "how"):
+- Authenticate to Marketing API server-to-server with System User token + appsecret_proof (HMAC-SHA256)
+- Wrap every API call in a function that: (a) checks rate limit, (b) appends to audit log, (c) signs with appsecret_proof
+- Writes require an explicit `user_confirmed: true` parameter — refuse if not set
+
+Frontend (the "what user sees"):
+- List of campaigns (table with name, status, budget, spend)
+- Drawer/modal with "Propose change" → "Confirm" → "Approve & Execute" sequence (this is the HITL flow)
+- Activity/Audit page showing recent operations
+- Settings page showing tier (development_access vs standard_access), Business Manager ID, ad accounts under management
+
+### Reference implementation
+
+The starter repo has a working version in Next.js 15 + FastAPI deployed on Vercel. Files to look at:
+- `dashboard/api/index.py` — backend with all 5 features
+- `dashboard/components/campaigns/CampaignDrawer.tsx` — HITL flow pattern
+- `dashboard/app/settings/page.tsx` — settings page exposing System User config
+
+### What the dashboard does NOT need
+
+- Beautiful design (functional > pretty)
+- All Marketing API endpoints (just the ones tied to the requested permission)
+- Production-grade error handling (it's a demo)
+- Multi-tenant support (first-party use only)
+- Any real users (the dashboard runs on your own accounts)
+
 ## Phase 1 — Pre-flight check (5 min)
 
 Before you write a single line, verify these are true:
@@ -161,6 +209,20 @@ Mesmo fluxo desta skill (descrição + screencast + form), mas com diferenças:
 - Privacy policy precisa cobrir tratamento de dados de clientes terceiros, não só dados internos
 
 Se chegar nesse ponto, refaz com este skill mas com foco em third-party — a fórmula muda.
+
+## 5 regras anti-ban (válidas ANTES e DEPOIS da aprovação)
+
+A skill `meta-ads-compliance` tem detalhes completos, mas pra garantir que esta skill é auto-suficiente, as 5 regras estão aqui também:
+
+1. **Polling ≥ 5 minutos** — nunca tight loop. Meta's próprio ad-rules engine roda a cada 30-60min. Auto-refresh de dashboard: mínimo 5min.
+2. **Writes só em horário comercial** (8h-20h horário local). Mudanças às 3am = sinal de bot.
+3. **HITL obrigatório em 4 ações:** criar/publicar criativo, +20% budget, cross-account budget rebalance, criar campanha.
+4. **Pausar polling em 60% BUC.** Header `X-Business-Use-Case-Usage` deve ser inspecionado em toda response.
+5. **Audit log append-only.** Toda operação loga: timestamp, operation, resource_id, before_state, after_state, user_confirmed.
+
+**Por que importam pro App Review:** o screencast precisa demonstrar o flow HITL e o audit log. Sem essas 2 evidências, reviewer rejeita com "unable to verify use case".
+
+**Por que importam DEPOIS da aprovação:** se você violar essas regras com app aprovado, Meta pode revogar o tier ou banir o app. O ban-wave de 2025-2026 atingiu apps que não seguiram essas regras.
 
 ## Skills relacionadas
 

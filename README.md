@@ -1,8 +1,14 @@
 # Meta Ads + Claude Code Starter
 
-Boilerplate pra gerenciar suas próprias contas Meta Ads via Claude Code com segurança (rate limiter, audit log, HITL, anti-ban). Inclui dashboard Next.js + FastAPI pronto pra usar como demo no Meta App Review.
+Boilerplate com **um único objetivo**: passar pelo Meta App Review e sair do tier Development (60 pts/h) pro Standard Access (9.000 pts/h, 150x mais quota).
 
-**Resultado típico:** App Review aprovado em 2-72h na primeira tentativa, saindo do tier de 60 pts/h pro Standard de 9.000 pts/h (150x mais quota).
+**Resultado típico:** App Review aprovado em 2-72h na primeira tentativa.
+
+## ⚠️ Sobre o dashboard
+
+O dashboard incluso (Next.js + FastAPI) é **exclusivamente demo pro App Review** — você o deploya, grava o screencast nele, submete pro Meta. Depois de aprovado, **a operação real acontece via Claude Code + MCP `meta-ads-mcp`**, não pelo dashboard. Você pode até desligar o Vercel após aprovação se quiser.
+
+A skill `meta-app-review-approval` é a fonte da verdade — ela contém todas as regras, templates de descrição, captions Netflix-style, e o blueprint do dashboard. Quem só ler a skill consegue replicar o processo inteiro mesmo sem clonar este repo.
 
 ## Quickstart (30min)
 
@@ -27,11 +33,11 @@ claude  # Claude lê CLAUDE.md + .mcp.json + skills automaticamente
 
 | Componente | Pra quê |
 |------------|---------|
-| **Dashboard Next.js + FastAPI** | UI funcional pra App Review demo + uso interno |
-| **Skill `meta-ads-compliance`** | Regras anti-ban, error codes, business hours warning |
+| **Dashboard Next.js + FastAPI** | DEMO pro App Review (descartável após aprovação) |
+| **Skill `meta-app-review-approval`** | Fonte da verdade: workflow completo + templates + captions |
+| **Skill `meta-ads-compliance`** | Regras anti-ban + 5 regras de operação contínua |
 | **Skill `meta-ads-warmup`** | Acumula API calls enquanto espera App Review |
-| **Skill `meta-app-review-approval`** | Workflow completo de submissão + screencast captions |
-| **MCP `meta-ads-mcp`** | Acesso direto à Marketing API via Claude |
+| **MCP `meta-ads-mcp`** | Acesso direto à Marketing API via Claude (uso operacional) |
 | **Templates** | Descrição do App Review + instruções pro analista |
 
 ## Documentação

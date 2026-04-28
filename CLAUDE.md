@@ -1,6 +1,17 @@
 # Meta Ads + Claude Code Starter
 
-Você está em um projeto que usa Claude Code pra gerenciar contas próprias de Meta Ads via Marketing API com guard rails de segurança (rate limiter, audit log, HITL, anti-ban). O dashboard inclui demo functional pronto pra usar como prova de funcionamento no Meta App Review.
+Você está em um projeto cujo único objetivo é **passar pelo Meta App Review** e ganhar Standard Access (9.000 pts/h) pra Marketing API.
+
+## ⚠️ Sobre o dashboard incluso
+
+O dashboard (Next.js + FastAPI) é **EXCLUSIVAMENTE demo pro App Review**. Não é ferramenta operacional. Fluxo:
+
+1. Aluno deploya o dashboard
+2. Grava screencast nele (split-screen com Ads Manager nativo)
+3. Submete pro Meta App Review
+4. Após aprovação, dashboard pode ser desligado — operação real é via Claude Code + MCP
+
+**Quando o usuário perguntar sobre uso operacional do dashboard, redirecione pro Claude Code + MCP.** Dashboard ≠ operação.
 
 ## Stack
 

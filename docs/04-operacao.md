@@ -1,8 +1,8 @@
-# 04 — Operação dia-a-dia
+# 04 — Operação dia-a-dia (pós-aprovação)
 
-Como usar o repo no dia-a-dia depois de aprovado em Standard Access.
+Após App Review aprovado, **o dashboard cumpriu sua função e pode ser desligado**. A operação real acontece via Claude Code + MCP `meta-ads-mcp`.
 
-## Modo de uso recomendado
+## Setup mínimo pra operação
 
 ```bash
 cd meta-ads-claude-starter
@@ -10,68 +10,41 @@ claude  # Claude Code lê CLAUDE.md + .mcp.json + skills automaticamente
 ```
 
 Claude entra com:
-- ✅ MCP `meta-ads` conectado (acesso direto à API)
-- ✅ Skill `meta-ads-compliance` ativa (regras anti-ban)
-- ✅ Skill `meta-app-review-approval` carregada se você falar de App Review
+- ✅ MCP `meta-ads` conectado (acesso direto à Marketing API)
+- ✅ Skill `meta-ads-compliance` ativa (regras anti-ban aplicadas em toda interação)
 - ✅ Contexto do projeto via CLAUDE.md
 
-## 3 caminhos pra mexer nas contas
+## Como mexer nas contas
 
-| Caminho | Quando usar |
-|---------|-------------|
-| **Meta Ads Manager nativo** | Mudanças complexas, criar campanhas do zero, criativos novos |
-| **Dashboard interno** (URL Vercel) | Pause/activate, update budget, ver insights consolidados, audit trail |
-| **Claude Code com MCP** | Análises ad-hoc, scripts, automações via prompt |
+| Ação | Como fazer |
+|------|------------|
+| Ver insights | "puxa insights dos últimos 7 dias da conta principal" |
+| Listar campanhas | "lista campanhas ativas com spend > R$ 100" |
+| Pausar campanha | "pausa a campanha X com aprovação" (Claude pede confirmação) |
+| Update budget | "muda o budget da campanha Y pra R$ 500/dia" (Claude pede confirmação) |
+| Análise ad-hoc | "compara CTR das 3 contas no último mês" |
 
-## 5 regras anti-ban (NUNCA violar)
+## Para uso visual / não-técnico
 
-A skill `meta-ads-compliance` aplica automaticamente, mas vale memorizar:
+Se você quer interface gráfica em vez de Claude Code, opções:
+
+1. **Meta Ads Manager nativo** (https://business.facebook.com) — sempre funciona, é o padrão
+2. **Reativar o dashboard** — manter Vercel ligado, ele continua funcional
+3. **Build outro dashboard** — copy/paste do código vendored neste repo
+
+Mas se você só vai usar Claude Code, **pode desligar o Vercel após aprovação** e economizar.
+
+## 5 regras anti-ban (skill `meta-ads-compliance` aplica automaticamente)
 
 1. **Polling ≥ 5 minutos** — nunca query em loop apertado
 2. **Writes só em horário comercial** (8h-20h horário local)
 3. **HITL obrigatório em:** criar/publicar criativo, +20% budget, cross-account rebalance, criar campanha
-4. **Pausar polling em 60% BUC** (já implementado no rate limiter)
+4. **Pausar polling em 60% BUC** (já implementado no rate limiter do MCP)
 5. **Audit log append-only** (já implementado)
-
-## Automações safe (verde)
-
-Pode rodar sem stress:
-
-- ✅ Auto-refresh dashboards (5-15min)
-- ✅ Day-parting (pause à noite, retoma de manhã)
-- ✅ Auto-pause underperformers (CPA > X com cooldown 6h + min spend)
-- ✅ Slack alerts em performance changes
-- ✅ Relatórios diários automatizados
-- ✅ AI agent 24/7 propondo via Slack (HITL no write)
-
-## Automações com cuidado (amarelo)
-
-Implementar com guard rails extras:
-
-- ⚠️ Auto-scale +X% — use cap +15% max 1x/dia, horário comercial
-- ⚠️ Bulk creative upload — HITL obrigatório no conteúdo
-- ⚠️ Cross-account rebalance — HITL obrigatório
-
-## NÃO fazer (vermelho)
-
-- ❌ Polling sub-minuto
-- ❌ Auto-publish criativo sem human review
-- ❌ Mudanças fora horário comercial em alta velocidade
-- ❌ Retry storm em erro 613/429 (sempre exponential backoff)
-
-## Comandos úteis
-
-| Tarefa | Comando |
-|--------|---------|
-| Verificar tier atual | `./scripts/verify-tier.sh act_xxx https://meta.dominio.com.br` |
-| Listar campanhas via API | Pedir ao Claude: "lista todas as campanhas ativas da conta principal" |
-| Pausar campanha | "pausa a campanha X com aprovação humana" |
-| Update budget | "muda o budget da campanha Y pra R$ 500/dia, com confirmação" |
-| Insights da semana | "puxa insights dos últimos 7 dias agrupado por campanha" |
 
 ## Quando o tier voltar pra dev
 
-Se o tier voltar pra `development_access` por qualquer motivo (ex: app teve problema), a skill `meta-ads-compliance` flagra automaticamente e sugere abrir App Review de novo via skill `meta-app-review-approval`.
+Se o tier voltar pra `development_access` por qualquer motivo (ex: app teve problema, suspended, etc.), a skill `meta-ads-compliance` flagra automaticamente e sugere abrir App Review de novo via skill `meta-app-review-approval`.
 
 ## Próximo passo
 
