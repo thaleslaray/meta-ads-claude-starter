@@ -1,0 +1,36 @@
+This is an internal business app used exclusively by [ORG_NAME] to
+manage the company's own Meta ad campaigns via the Marketing API.
+
+The dashboard is publicly accessible (read-only landing) at
+[APP_URL] — the reviewer can verify it loads. However, write
+operations (pause/activate, budget update) are protected behind our
+internal team's access and cannot be exercised by external reviewers.
+
+Authentication: All Marketing API calls are made server-to-server
+using a System User access token tied to our verified Business
+Manager (ID: [BM_ID]), signed with appsecret_proof (HMAC-SHA256).
+There is no end-user OAuth flow to demonstrate.
+
+The attached screencast ([DURATION]) demonstrates the full use case:
+- Reading insights and campaign data from the Marketing API
+- [List each write performed and the HITL approval flow]
+- Showing Meta Ads Manager (right panel) reflecting writes
+  in real time, proving real API integration
+
+The [N] ad accounts under review:
+- act_[ID_1] ([account name 1])
+- act_[ID_2] ([account name 2])
+- act_[ID_3] ([account name 3])
+
+All accounts belong to the same Business Manager. The app does
+not access any third-party ad accounts.
+
+==============================================================
+PLACEHOLDERS:
+- [ORG_NAME]   : business name
+- [APP_URL]    : live dashboard URL
+- [BM_ID]      : Business Manager ID (numeric)
+- [DURATION]   : video length, e.g., "1min07s"
+- [N]          : number of ad accounts
+- [act_ID_*]   : ad account IDs and friendly names
+==============================================================

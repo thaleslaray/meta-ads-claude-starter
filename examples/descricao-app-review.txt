@@ -1,0 +1,67 @@
+[ORG_NAME] operates [N] owned Meta ad accounts ([list ad account IDs]).
+We built an internal operations dashboard to manage these accounts more
+safely and with full audit trail than the native Ads Manager allows.
+This is a first-party tool used only by our own marketing team — we are
+NOT building a third-party product for external advertisers.
+
+AUTHENTICATION
+
+The dashboard authenticates to Meta server-to-server using a System
+User access token signed with appsecret_proof (HMAC-SHA256). There is
+no end-user OAuth flow because end users are our own internal
+employees who access the dashboard via [SSO / VPN / explain access
+control]. The screencast includes captions explaining this so reviewers
+can follow the auth model.
+
+WHAT THE APP DOES
+
+The dashboard (live at [APP_URL]) gives our internal media team a
+single pane to:
+
+1. View consolidated insights across the [N] accounts (spend,
+   impressions, clicks, CTR, CPC, reach) with delta vs. previous
+   period.
+2. List all campaigns with status, daily/lifetime budget, and KPIs.
+3. Pause or activate campaigns — every write requires explicit
+   human approval (HITL) inside a dedicated confirmation panel.
+4. Update daily budgets — same HITL approval flow, with server-side
+   validation.
+5. Review an append-only audit log of every API call (reads and
+   writes) with operation, resource_id, before/after state, and
+   timestamp.
+
+The attached screencast shows [N] real writes performed against our
+own campaign "[CAMPAIGN_NAME]": [list each write performed].
+The right side of the screen shows Meta's native Ads Manager
+reflecting the changes in real time, proving real Marketing API
+integration.
+
+WHY STANDARD ACCESS IS REQUIRED
+
+Development Access (60 points/hour) is exhausted in seconds during
+normal daily operations across [N] accounts and [M]+ active campaigns.
+Standard Access (9,000 points/hour) is the minimum capacity required
+to support the team's actual workflow without artificial throttling.
+
+COMPLIANCE AND SAFETY
+
+- Authentication via System User token + appsecret_proof
+  (HMAC-SHA256), no client-side token exposure
+- Append-only JSONL audit log of every call with before/after state
+- Server-side rate limiter with circuit breaker on quota exhaustion
+- HITL approval gate on every write — no automated/background writes
+- HTTPS-only, secrets server-side, English UI throughout
+
+Data accessed via this feature is used exclusively to manage our own
+ad accounts. It is not resold, shared, or used for any other purpose.
+
+==============================================================
+PLACEHOLDERS TO REPLACE:
+- [ORG_NAME]                : your business name
+- [N], [M]                  : number of accounts / campaigns
+- [list ad account IDs]     : act_xxxxxxxxx, comma-separated
+- [APP_URL]                 : the live dashboard URL
+- [CAMPAIGN_NAME]           : the campaign demonstrated in the video
+- [list each write performed]: e.g., "daily budget changed from R$X
+                                to R$Y, status toggled PAUSED→ACTIVE"
+==============================================================

@@ -1,0 +1,24 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 3840
+PlayResY: 2160
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Netflix,Helvetica,60,&H0000FFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,3,2,2,120,120,120,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+; First caption MUST mention System User if no OAuth — otherwise Meta rejects
+Dialogue: 0,0:00:00.00,0:00:04.00,Netflix,,0,0,0,,Internal dashboard — auth via server-side System User token (no end-user OAuth)
+Dialogue: 0,0:00:04.00,0:00:08.00,Netflix,,0,0,0,,Live data pulled from Marketing API — real spend, impressions, clicks
+Dialogue: 0,0:00:08.00,0:00:12.00,Netflix,,0,0,0,,Campaign list: real campaigns, real budgets, real status
+Dialogue: 0,0:00:12.00,0:00:16.00,Netflix,,0,0,0,,Opening a campaign drawer to update the daily budget
+Dialogue: 0,0:00:16.00,0:00:20.00,Netflix,,0,0,0,,Human approval required before any write — HITL flow
+; Caption naming the EXACT permission used at the moment of the API call
+Dialogue: 0,0:00:20.00,0:00:24.00,Netflix,,0,0,0,,Backend calls Marketing API with System User token + ads_management
+Dialogue: 0,0:00:24.00,0:00:28.00,Netflix,,0,0,0,,Switching focus to Meta Ads Manager (right panel)
+Dialogue: 0,0:00:28.00,0:00:32.00,Netflix,,0,0,0,,Same campaign, same account — on Meta's native interface
+Dialogue: 0,0:00:32.00,0:00:36.00,Netflix,,0,0,0,,Budget change reflected in real time on Ads Manager
+Dialogue: 0,0:00:36.00,0:00:40.00,Netflix,,0,0,0,,Proof of real API sync — not a mock, not a recording
