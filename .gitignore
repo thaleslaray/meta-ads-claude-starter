@@ -15,6 +15,10 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+mcp-server/.venv/
+mcp-server/build/
+mcp-server/dist/
+mcp-server/*.egg-info/
 
 # Vercel
 .vercel/

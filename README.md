@@ -424,6 +424,68 @@ Claude roda `./scripts/verify-tier.sh` e confirma:
 
 ---
 
+## 📂 Onde tá cada coisa no repo
+
+Pergunta legítima: "depois que clonei, onde tá o MCP? onde tá o código do MCP? onde tá a configuração?". Resposta clara:
+
+```
+meta-ads-claude-starter/
+│
+├── .mcp.json                          ⬅️ CONFIG do MCP — Claude lê isso ao abrir.
+│                                          Aponta pro mcp-server/ (vendored aqui mesmo).
+│
+├── mcp-server/                        ⬅️ CÓDIGO do MCP (Python).
+│   ├── pyproject.toml                     Dependências do MCP.
+│   ├── uv.lock
+│   └── src/meta_ads_mcp/                  Código-fonte.
+│       ├── server.py                      Entrypoint do MCP.
+│       ├── client.py                      Wrapper da Marketing API.
+│       ├── audit.py                       Audit log JSONL.
+│       ├── rate_limiter.py                Rate limiter + circuit breaker.
+│       └── tools/                         Tools que o Claude pode chamar.
+│
+├── .claude/skills/                    ⬅️ SKILLS — auto-carregadas pelo Claude.
+│   ├── meta-ads-compliance/               Regras anti-ban (sempre ativa).
+│   ├── meta-ads-warmup/                   Warm-up de API calls.
+│   └── meta-app-review-approval/          Workflow do App Review.
+│
+├── dashboard/                          ⬅️ DEMO pro App Review (só usa se for fazer review).
+│
+├── docs/                               ⬅️ DOCUMENTAÇÃO (5 docs + pesquisa de ban).
+├── examples/                           ⬅️ TEMPLATES (descrição + instruções analista).
+├── scripts/                            ⬅️ SCRIPTS (setup wizard, verify-tier, warmup).
+│
+├── .env.example                        ⬅️ TEMPLATE das variáveis de ambiente.
+├── CLAUDE.md                           ⬅️ INSTRUÇÕES pro Claude Code.
+└── README.md                           ⬅️ você está aqui
+```
+
+### Como cada peça é ativada
+
+| Peça | Quando carrega | Quem dispara |
+|------|---------------|--------------|
+| **`.mcp.json`** + **`mcp-server/`** | Toda vez que você abre `claude` na pasta | Automático |
+| **`.claude/skills/meta-ads-compliance/`** | Quando você menciona "meta ads", "campanha", "anúncio" | Auto-trigger |
+| **`.claude/skills/meta-ads-warmup/`** | Quando você fala em warm-up ou roda `scripts/warmup.py` | Por palavra-chave |
+| **`.claude/skills/meta-app-review-approval/`** | Quando você fala em "App Review", "Standard Access" | Por palavra-chave |
+| **`CLAUDE.md`** | Toda vez que você abre `claude` na pasta | Automático |
+
+### Pré-requisito do MCP: `uv` instalado
+
+O MCP server roda via `uvx`. Se você não tem `uv` instalado:
+
+```bash
+# Mac/Linux:
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows:
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Depois disso, o `uvx --from ./mcp-server meta-ads-mcp` no `.mcp.json` funciona automaticamente — `uv` instala dependências no primeiro uso e cacheia.
+
+---
+
 ## 🛠️ Detalhamento: o que cada peça faz
 
 Quando você roda `claude` na pasta deste repo, **4 coisas carregam automaticamente** no Claude. Vou explicar cada uma com clareza.
