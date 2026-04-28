@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# Interactive setup wizard. Asks for tokens + ad accounts and writes .env.
+# Interactive setup wizard. Asks ONLY for what's needed for basic usage
+# (Claude Code + 60 pts/h tier). Dashboard-related fields (BM_ID, AD_ACCOUNTS)
+# are skipped — Claude will ask for them later if/when you decide to do
+# the App Review.
+#
 # Run from repo root: ./scripts/setup.sh
 
 set -euo pipefail
@@ -19,59 +23,45 @@ echo ""
 echo "Meta Ads + Claude Code — Setup Wizard"
 echo "======================================"
 echo ""
-echo "Get these from:"
-echo "  - System User token: business.facebook.com → System Users → Generate Token"
-echo "  - App Secret: developers.facebook.com → Your App → Settings → Basic"
-echo "  - Business Manager ID: business.facebook.com → Settings → Business Info"
+echo "Você só precisa de 2 coisas pra começar a usar Claude Code"
+echo "com Meta Ads (60 pts/h). Pega ambos em business.facebook.com:"
+echo ""
+echo "  1. System User token: Configurações → Usuários → Usuários do Sistema"
+echo "     → seu user → Gerar Novo Token"
+echo "     (permissions: ads_management, ads_read, business_management)"
+echo ""
+echo "  2. App Secret: developers.facebook.com → seu app → Settings → Basic"
+echo "     → App Secret → Show"
 echo ""
 
-read -r -p "META_ACCESS_TOKEN (System User token): " META_ACCESS_TOKEN
-read -r -p "META_APP_SECRET: " META_APP_SECRET
-read -r -p "META_BM_ID (numeric Business Manager ID): " META_BM_ID
-read -r -p "ORG_NAME (your business name): " ORG_NAME
-
-echo ""
-echo "Now we need your ad accounts. You'll add them one at a time."
-echo "Account IDs look like 'act_487731909607599'."
-echo ""
-
-ACCOUNTS_JSON="["
-COUNT=0
-while true; do
-  read -r -p "Add ad account? (y/N) " add
-  if [ "$add" != "y" ] && [ "$add" != "Y" ]; then
-    break
-  fi
-  read -r -p "  Account ID (act_xxx): " ACC_ID
-  read -r -p "  Account name (e.g. 'Main Brand Account'): " ACC_NAME
-  read -r -p "  Short label (e.g. 'Main'): " ACC_LABEL
-
-  if [ $COUNT -gt 0 ]; then
-    ACCOUNTS_JSON+=","
-  fi
-  ACCOUNTS_JSON+="{\"id\":\"$ACC_ID\",\"name\":\"$ACC_NAME\",\"label\":\"$ACC_LABEL\"}"
-  COUNT=$((COUNT + 1))
-done
-ACCOUNTS_JSON+="]"
-
-if [ $COUNT -eq 0 ]; then
-  echo "Error: at least one ad account is required." >&2
-  exit 1
-fi
+read -r -p "META_ACCESS_TOKEN (System User token, começa com EAA...): " META_ACCESS_TOKEN
+read -r -p "META_APP_SECRET (32 caracteres): " META_APP_SECRET
+read -r -p "ORG_NAME (nome da sua empresa, aparece no dashboard se você fizer App Review): " ORG_NAME
 
 # Write .env (no trailing newlines on values)
 {
   printf "META_ACCESS_TOKEN=%s\n" "$META_ACCESS_TOKEN"
   printf "META_APP_SECRET=%s\n" "$META_APP_SECRET"
-  printf "META_BM_ID=%s\n" "$META_BM_ID"
-  printf "META_AD_ACCOUNTS=%s\n" "$ACCOUNTS_JSON"
   printf "ORG_NAME=%s\n" "$ORG_NAME"
+  printf "\n"
+  printf "# Dashboard fields (preenchidos depois, se/quando fizer App Review):\n"
+  printf "# META_BM_ID=1234567890\n"
+  printf "# META_AD_ACCOUNTS=[{\"id\":\"act_xxx\",\"name\":\"Conta Principal\",\"label\":\"Main\"}]\n"
 } > "$ENV_FILE"
 
 chmod 600 "$ENV_FILE"
 
 echo ""
-echo "✓ .env written ($COUNT accounts configured)"
+echo "✅ .env criado!"
 echo ""
-echo "Next: ./scripts/verify-tier.sh ${ACC_ID:-act_xxx} http://localhost:3000"
-echo "  (after starting dashboard locally with 'cd dashboard && npm run dev')"
+echo "Próximo passo: roda 'claude' nesta pasta. Ele já vai estar"
+echo "conectado nas suas contas Meta com guard rails anti-ban."
+echo ""
+echo "Tenta perguntar:"
+echo "  • 'Lista minhas contas de anúncios'"
+echo "  • 'Quanto gastei em Meta Ads essa semana?'"
+echo "  • 'Mostra as 5 campanhas com pior CPA'"
+echo ""
+echo "Quando quiser evoluir pra Standard Access (9.000 pts/h),"
+echo "fala pro Claude: 'Vou submeter Meta App Review'."
+echo ""

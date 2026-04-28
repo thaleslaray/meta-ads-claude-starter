@@ -288,48 +288,42 @@ Pensa assim: o dashboard é o **portfolio que você mostra pro empregador na ent
 
 ---
 
-## 🚀 Quickstart (4 passos, 30min)
+## 🚀 Instalação básica (uso com 60 pts/h, ~15min)
 
-> **Filosofia:** o objetivo NÃO é você entender Next.js, FastAPI ou Vercel. É deixar o Claude Code fazer o trabalho pesado enquanto você só fornece os tokens da Meta e cola comandos.
+> **O que você vai ter no final:** Claude Code conectado às suas contas de Meta Ads, com guard rails anti-ban. Você pode pedir coisas tipo "lista campanhas ativas" ou "pausa essa campanha que tá queimando dinheiro" e ele faz, dentro do limite de 60 chamadas/hora.
+>
+> Dashboard, Vercel, App Review — **tudo isso só entra na próxima fase, se você decidir evoluir pra 9.000 pts/h**.
 
 ### Passo 1 — Pegar os tokens da Meta (10min, **a parte chata**)
 
-Você precisa anotar 3 coisas antes de começar. Esta é a única parte que a Meta exige que você faça manualmente.
+Você precisa anotar 2 coisas antes de começar. É a única parte que a Meta exige fazer manualmente.
 
 #### 1.1. Crie o app (se ainda não tem)
 
 1. Vai em https://developers.facebook.com/apps
 2. Clica **Create App** → escolhe "Other" → "Empresa"
-3. Anota o **App ID** (numérico, aparece no topo do dashboard do app)
 
 #### 1.2. Adicione Marketing API ao app
 
-1. No painel do app: **Add Product** → procura **Marketing API** → Add
+No painel do app: **Add Product** → procura **Marketing API** → Add.
 
-#### 1.3. Configure Privacy Policy
-
-1. No painel do app: **App Settings → Basic**
-2. Em **Privacy Policy URL**, cola uma URL pública (pode ser do site da sua empresa, ex: `https://www.suaempresa.com/privacidade`)
-3. Salva
-
-#### 1.4. Pegue o System User token
+#### 1.3. Pegue o System User token
 
 1. Vai em https://business.facebook.com → **Configurações do Negócio**
-2. **Usuários → Usuários do Sistema** → **Adicionar** (cria um chamado "API Dashboard", role: Admin)
+2. **Usuários → Usuários do Sistema** → **Adicionar** (cria um chamado "Claude Code", role: Admin)
 3. Atribua ativos: clica em **Adicionar Ativos** → adiciona seu **app** + **cada conta de anúncio** que quer gerenciar (todos com permissão "Gerenciar")
 4. Clica **Gerar Novo Token**:
    - App: o que você criou
    - Permissions: marca **`ads_management`**, **`ads_read`** e **`business_management`**
    - Expiração: **Nunca**
-5. **COPIA O TOKEN** (você não vai conseguir ver de novo). É um string gigante começando com `EAA...`
+5. **COPIA O TOKEN** (você não vai conseguir ver de novo). É uma string gigante começando com `EAA...`
 
-#### 1.5. Anote os 3 valores que você precisa
+#### 1.4. Anote os 2 valores que você precisa
 
 | Onde achar | Valor |
 |------------|-------|
-| Token do passo 1.4 (recém copiado) | `META_ACCESS_TOKEN` = `EAA...` |
+| Token do passo 1.3 (recém copiado) | `META_ACCESS_TOKEN` = `EAA...` |
 | App Settings → Basic → App Secret (clica "Show", coloca senha do FB) | `META_APP_SECRET` = `abc123...` |
-| Business Settings → Business Info → "ID da empresa" | `META_BM_ID` = `1234567890` |
 
 ✅ **Pronto. Essa foi a parte chata.** O resto é mole.
 
@@ -348,67 +342,71 @@ O `setup.sh` é interativo — vai te perguntar cada coisa, uma por vez:
 ```
 META_ACCESS_TOKEN: [cola o token EAA... e enter]
 META_APP_SECRET: [cola o app secret e enter]
-META_BM_ID: [cola o ID numérico e enter]
 ORG_NAME: [nome da sua empresa, ex: "Minha Empresa LTDA"]
-
-Add ad account? (y/N) y
-  Account ID (act_xxx): act_487731909607599
-  Account name: Conta Principal
-  Short label: Main
-
-Add ad account? (y/N) n   ← responde "n" quando terminar
-
-✓ .env written (1 account configured)
 ```
 
-> 💡 **Onde acho os Account IDs?** Se você não sabe os IDs das suas contas, abre https://business.facebook.com → Configurações do Negócio → Contas de Anúncios. Cada uma tem um ID que começa com `act_`. Copia esse ID inteiro.
-
-✅ Setup feito. O arquivo `.env` foi criado na raiz com seus segredos. **Nunca commita esse arquivo** (já tá no `.gitignore`).
+✅ Setup feito. Arquivo `.env` criado na raiz com seus segredos. **Nunca commita esse arquivo** (já tá no `.gitignore`).
 
 ---
 
-### Passo 3 — Deploy na Vercel (10min)
-
-Aqui o Claude Code faz o trabalho pra você. Volta pra raiz do repo e abre o Claude:
+### Passo 3 — Abrir Claude Code (1min)
 
 ```bash
 claude
 ```
 
-Quando abrir, fala:
+Quando o Claude abrir, ele já vem **pré-carregado** com:
+- ✅ MCP `meta-ads-mcp` conectado (acesso direto à Marketing API)
+- ✅ Skills `meta-ads-compliance`, `meta-ads-warmup`, `meta-app-review-approval`
+- ✅ Contexto do projeto via `CLAUDE.md`
 
-> "Faz o deploy do dashboard pra Vercel. Já tenho o .env configurado."
+**Pronto. Já pode usar.** Tenta:
 
-Ele vai:
-1. Rodar `vercel login` (vai abrir o navegador pra você fazer login na Vercel — precisa de conta gratuita)
-2. Rodar `vercel link` (cria projeto novo)
-3. Importar todas as variáveis do seu `.env` pra Vercel automaticamente
-4. Rodar `vercel --prod`
-5. Te mostrar a URL final: `https://meta-ads-dashboard-xxxx.vercel.app`
+> "Lista todas as minhas campanhas ativas"
 
-✅ Dashboard no ar. Abre a URL pra confirmar que funciona.
+> "Quanto gastei essa semana em Meta Ads?"
 
-> 💡 **Opcional:** se quiser custom domain (tipo `meta.suaempresa.com.br`), pede pro Claude: "configura o domínio meta.suaempresa.com.br". Ele te guia.
+> "Pausa a campanha 'Promo Black Friday' com aprovação"
+
+A skill `meta-ads-compliance` monitora a quota em tempo real. Se você chegar perto do limite de 60 pts/h, Claude avisa antes de quebrar.
 
 ---
 
-### Passo 4 — Submeter App Review (15min de trabalho + 2h-3 dias de espera)
+## 🚀 Evoluir pra Standard Access (9.000 pts/h)
 
-No Claude Code (mesma sessão):
+Esta parte só faz sentido **quando você sentir que 60 pts/h tá pequeno** — quando quer automatizar, rodar relatórios pesados, ou monitorar 24/7.
 
-> "Vou submeter o Meta App Review pedindo Ads Management Standard Access. Me guia passo a passo."
+Pra ganhar 150x mais quota, você precisa passar pelo **Meta App Review**. E pra passar no App Review, precisa de um **dashboard funcional** que serve de prova de que sua integração com a API é real (Meta exige ver isso no screencast).
 
-A skill `meta-app-review-approval` carrega automaticamente e te guia:
+### Passo 4 — Deploy do dashboard demo (10min)
 
-1. **Pré-flight check** — Claude verifica se BM tá verificado, app tá Live, Privacy Policy responde 200
+No Claude Code, fala:
+
+> "Vou submeter Meta App Review. Faz o deploy do dashboard demo pra Vercel."
+
+Claude vai:
+1. Pedir os IDs das contas (`act_xxx`) e o `META_BM_ID` se ainda não tiver
+2. Rodar `vercel login` (abre navegador pra você logar — precisa de conta Vercel gratuita)
+3. Importar as variáveis do `.env` pra Vercel
+4. Deploy → te dá URL `https://meta-ads-dashboard-xxxx.vercel.app`
+
+✅ Dashboard no ar. **Lembra: ele é só demo pro App Review.** Depois de aprovado, pode até desligar o Vercel.
+
+### Passo 5 — Submeter App Review (15min trabalho + 2h-3 dias espera)
+
+Continua no Claude Code:
+
+> "Agora me guia pra submeter o App Review pedindo Ads Management Standard Access"
+
+A skill `meta-app-review-approval` carrega e te guia:
+
+1. **Pré-flight check** — verifica se BM tá verificado, app tá Live, Privacy Policy responde 200
 2. **Gravar screencast** — Claude te diz exatamente o que mostrar no vídeo (split-screen do seu dashboard com Meta Ads Manager nativo)
-3. **Adicionar captions** — Claude roda ffmpeg pra colocar legendas estilo Netflix no vídeo
+3. **Adicionar captions** — Claude roda ffmpeg pra colocar legendas estilo Netflix
 4. **Preencher o form** — Claude te dá o texto exato pra colar em cada campo do form em developers.facebook.com
 5. **Submeter**
 
 **Tempo de resposta da Meta:** 2 horas a 3 dias. Email chega no endereço da sua conta dev.
-
----
 
 ### 🎉 Quando aprovar
 
@@ -416,25 +414,13 @@ Email "Your App Review results are ready" chega → no Claude Code:
 
 > "Verifica se o Standard Access foi liberado"
 
-Claude vai rodar `./scripts/verify-tier.sh` e confirmar:
+Claude roda `./scripts/verify-tier.sh` e confirma:
 
 ```
 ✓ APPROVED — tier is standard_access (9000 pts/h, was 60)
 ```
 
 **Você ganhou 150x mais quota.** 🚀
-
----
-
-## 🤔 "E se eu quiser testar localmente antes de fazer deploy?"
-
-Você não precisa. Mas se quiser, pede pro Claude:
-
-> "Sobe o dashboard localmente pra eu testar antes do deploy"
-
-Ele vai instalar dependências (`npm install` + `pip install`) e rodar tanto o backend quanto o frontend, te dando a URL `http://localhost:3000`.
-
-Mas honestamente: o deploy direto pra Vercel funciona de primeira na maioria dos casos. Se der erro, Claude resolve.
 
 ---
 
