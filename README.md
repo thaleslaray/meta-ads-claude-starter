@@ -484,6 +484,38 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 Depois disso, o `uvx --from ./mcp-server meta-ads-mcp` no `.mcp.json` funciona automaticamente — `uv` instala dependências no primeiro uso e cacheia.
 
+### Como as skills são carregadas
+
+Claude Code **auto-descobre** as skills em `.claude/skills/` toda vez que você roda `claude` na pasta do projeto. Não precisa de comando, instalação, nada. É só ter o folder lá.
+
+**Como verificar se carregaram:** abre o Claude Code na pasta do repo e digita `/`. Você deve ver no menu de skills disponíveis:
+
+- `meta-ads-compliance`
+- `meta-ads-warmup`
+- `meta-app-review-approval`
+
+Se não aparecerem, roda:
+
+```bash
+./scripts/install-skills.sh
+```
+
+Esse script copia as skills pra `~/.claude/skills/` global (fallback caso seu Claude Code não auto-descubra do projeto).
+
+### Como cada skill ativa
+
+Skills do Claude Code têm um `description` que diz **quando** elas devem ativar. Você não chama elas explicitamente — Claude lê seu pedido, vê se bate com a description de alguma skill, e carrega automaticamente.
+
+Exemplos do que dispara cada uma:
+
+| Você fala... | Skill que ativa | Por quê |
+|--------------|----------------|---------|
+| "lista campanhas", "quanto gastei", "pausa essa campanha" | `meta-ads-compliance` | Description menciona "meta ads", "campanha", "anúncio" |
+| "vou submeter App Review", "quero Standard Access" | `meta-app-review-approval` | Description menciona "App Review", "Standard Access" |
+| "quero acumular API calls", "warm-up do app" | `meta-ads-warmup` | Description menciona "warm-up", "Advanced Access" |
+
+**Você não precisa decorar isso.** É só falar naturalmente o que quer fazer — Claude carrega a skill certa.
+
 ---
 
 ## 🛠️ Detalhamento: o que cada peça faz
